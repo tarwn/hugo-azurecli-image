@@ -1,0 +1,21 @@
+version: 2.1
+
+workflows:
+  main:
+    jobs:
+      - build-releases
+
+jobs:
+  build-releases:
+    machine: true
+    steps:
+      - checkout
+      - run:
+          name: "Build Docker Images"
+          command: docker build -t tarwn/hugo-azurecli:latest -t cibuilds/hugo-azurecli:0.54.0 .
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              docker login -u  $DOCKER_USER -p $DOCKER_PASS
+              docker push tarwn/hugo-azurecli
+            fi
